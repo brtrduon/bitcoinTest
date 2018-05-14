@@ -1,60 +1,146 @@
-var svg = d3.select("svg"),
-    margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+// display parameters
+var margin = {
+    top: 80,
+    right: 80,
+    bottom: 80,
+    left: 80
+    },
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
 
-var x = d3.scaleTime()
-    .rangeRound([0, width]);
+// scales parameters stuff
+var x = d3.time.scale()
+        .range([0, width]),
+    y = d3.scale.linear()
+        .range([height, 0]),
+    xAxis = d3.svg.axis()
+        .scale(x)
+        .tickSize(-height)
+        .tickSubdivide(true),
+    yAxis = d3.svg.axis()
+        .scale(y)
+        .ticks(4)
+        .orient('right');
 
-var y = d3.scaleLinear()
-    .rangeRound([height, 0]);
+var area = d3.svg.area()
+    .interpolate('monotone')
+    .x((d) => {
+        return x(d.time);
+    })
+    .y0(height)
+    .y1((d) => {
+        return y(d.average);
+    });
 
-var line = d3.line()
-    .x(function(d) { return x(d.time); })
-    .y(function(d) { return y(d.average); });
+var line = d3.svg.line()
+    .interpolate('monotone')
+    .x((d) => {
+        return x(d.time);
+    })
+    .y((d) => {
+        return y(d.average);
+    });
 
-d3.csv("data.csv", function(d) {
-    d.time = Date.parse(d.time);
-    // console.log(d.time);
-    d.average = +d.average;
-    return d;
-    }, function(data) {
-        console.log(data)
-        x.domain(
-            d3.extent(data, function(d) { 
-            return d.time; 
+d3.csv('data.csv', type, (err, data) => {
+    // console.log(data)
+    for(var i in data) {
+        data[i]['currency'] = 'USD';
+    }
+    
+    var values = data.filter((d) => {
+        return d.currency == 'USD';
+    });
+
+    x.domain(
+        d3.extent(data, (d) => {
+            return d.time;
+        })
+    );
+    y.domain(
+        d3.extent(data, (d) => {
+            return d.average;
+        })
+    );
+
+    var svg = d3.select('svg')
+        .attr('height', height + margin.top + margin.bottom)
+        .attr('width', width + margin.left + margin.right)
+        .append('g')
+            .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+    // append clip path
+    // is this the "curtain?"
+    svg.append('clipPath')
+        .attr('id', 'clip')
+        .append('rect')
+            .attr('height', height)
+            .attr('width', width);
+
+    // append x axis
+    svg.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', `translate(0, ${height})`)
+        .call(xAxis);
+
+    // append y axis
+    svg.append('g')
+        .attr('class', 'y axis')
+        .attr('transform', `translate(${width}, 0)`)
+        .text('Price ($)')
+        .call(yAxis);
+
+    // eye candy
+    var colors = d3.scale.category10();
+
+    svg.selectAll('.line')
+        .data([values])
+        .enter()
+        .append('path')
+            .attr('class', 'line')
+            .style('stroke', (d) => {
+                return colors(Math.random() * 50);
             })
-        );
-        y.domain(
-            d3.extent(data, function(d) { 
-            return d.average; 
-            })
-        );
-        
-        g.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x))
-        .select(".domain")
-        .remove();
-        
-        g.append("g")
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("fill", "#000")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", "0.71em")
-        .attr("text-anchor", "end")
-        .text("Price ($)");
-        
-        g.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("stroke-width", 1.5)
-        .attr("d", line);
+            .attr('clip-path', 'url(#clip')
+            .attr('d', (d) => {
+                return line(d);
+            });
+
+    var curtain = svg.append('rect')
+        .attr('y', -1 * height)
+        .attr('x', -1 * width)
+        .attr('height', height)
+        .attr('width', width)
+        .attr('class', 'curtain')
+        .attr('transform', 'rotate(180)')
+        .style('fill', '#ffffff');
+
+    // animation stuff
+    var t = svg.transition()
+        .delay(750)
+        .duration(6000)
+        .ease('linear')
+        .each('end', () => {
+            d3.select('line.guide')
+                .transition()
+                .style('opacity', 0)
+                .remove()
+        });
+
+    t.select('rect.curtain')
+        .attr('width', 0);
+    t.select('line.guide')
+        .attr('transform', `translate(${width}, 0)`)
 });
+
+
+
+
+
+
+
+function type(d) {
+    d.time = Date.parse(d.time);
+    d.average = +d.average;
+
+    return d;
+};
