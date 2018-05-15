@@ -42,14 +42,33 @@ var line = d3.svg.line()
     });
 
 d3.csv('data.csv', type, (err, data) => {
-    // console.log(data)
     for(var i in data) {
-        data[i]['currency'] = 'USD';
+        // console.log(i);
+        if(i <= 766) {
+            data[i]['currency'] = 'USD';
+        }
+        else if (i >= 767 && i <= 1533) {
+            data[i]['currency'] = 'CHF';
+        }
+        else if (i >= 1534 && i <= 2300) {
+            data[i]['currency'] = 'EUR';
+        }
     }
     
-    var values = data.filter((d) => {
+    var USD = data.filter((d) => {
         return d.currency == 'USD';
     });
+    console.log(USD);
+
+    var CHF = data.filter((d) => {
+        return d.currency == 'CHF';
+    });
+    console.log(CHF);
+
+    var EUR = data.filter((d) => {
+        return d.currency == 'EUR';
+    });
+    console.log(EUR);
 
     x.domain(
         d3.extent(data, (d) => {
@@ -86,14 +105,13 @@ d3.csv('data.csv', type, (err, data) => {
     svg.append('g')
         .attr('class', 'y axis')
         .attr('transform', `translate(${width}, 0)`)
-        .text('Price ($)')
         .call(yAxis);
 
     // eye candy
     var colors = d3.scale.category10();
 
     svg.selectAll('.line')
-        .data([values])
+        .data([USD, CHF, EUR])
         .enter()
         .append('path')
             .attr('class', 'line')
