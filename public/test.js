@@ -42,10 +42,17 @@ var line = d3.svg.line()
     });
 
 d3.csv('data.csv', type, (err, data) => {
+    var xavg = 1;
+    // x is time/date
+    var yavg = 0;
+    // y is price
+    var numerator = 0;
+    var denominator = 0;
     for(var i in data) {
         // console.log(i);
         if(i <= 766) {
             data[i]['currency'] = 'USD';
+            yavg += data[i]['average'];
         }
         else if (i >= 767 && i <= 1533) {
             data[i]['currency'] = 'CHF';
@@ -54,21 +61,34 @@ d3.csv('data.csv', type, (err, data) => {
             data[i]['currency'] = 'EUR';
         }
     }
+    yavg /= 766;
+    // console.log(yavg);
+    for(var j = 0; j <= 766; j++) {
+        numerator += ((j+1-yavg) * (data[j]['average'] - yavg));
+        denominator += ((j+1-xavg) * j+1-xavg);
+    }
+    // console.log(numerator);
+    // console.log(denominator);
+    var slope = numerator / denominator;
+    // console.log(slope);
+    var intercept = yavg - (slope * xavg);
+    // console.log(intercept);
+    console.log(`line of best fit: y = ${slope}x + ${intercept}`)
     
     var USD = data.filter((d) => {
         return d.currency == 'USD';
     });
-    console.log(USD);
+    // console.log(USD);
 
     var CHF = data.filter((d) => {
         return d.currency == 'CHF';
     });
-    console.log(CHF);
+    // console.log(CHF);
 
     var EUR = data.filter((d) => {
         return d.currency == 'EUR';
     });
-    console.log(EUR);
+    // console.log(EUR);
 
     x.domain(
         d3.extent(data, (d) => {
@@ -134,14 +154,43 @@ d3.csv('data.csv', type, (err, data) => {
 
     // animation stuff
     var t = svg.transition()
-        .delay(750)
-        .duration(6000)
+        .delay(400)
+        .duration(5000)
         .ease('linear')
         .each('end', () => {
             d3.select('line.guide')
                 .transition()
                 .style('opacity', 0)
                 .remove()
+        });
+
+    var legend = svg.selectAll('.legend')
+        .data(colors.domain())
+        .enter()
+        .append('g')
+            .attr('class', 'legend')
+            .attr('transform', (d, i) => {
+                console.log(d);
+                var heightlegend = 18 + 4;
+                var offset = heightlegend * colors.domain().length / 2;
+                var horizontal = -2 * 18;
+                var vertical = i * heightlegend - offset;
+
+                return `translate(${horizontal}, ${vertical})`;
+            });
+
+    legend.append('rect')
+        .attr('width', 18)
+        .attr('height', 18)
+        .style('fill', colors)
+        .style('stroke', colors);
+
+    legend.append('text')
+        .attr('x', 18 + 4)
+        .attr('y', 18 - 4)
+        .text((d) => {
+            // console.log(d);
+            return 'crack'
         });
 
     t.select('rect.curtain')
@@ -155,7 +204,7 @@ d3.csv('data.csv', type, (err, data) => {
 
 
 
-
+// parsing date for use in d3.csv above
 function type(d) {
     d.time = Date.parse(d.time);
     d.average = +d.average;
