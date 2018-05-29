@@ -2,33 +2,22 @@ body {
     font: 10px sans-serif;
     margin: 0;
 }
-
 path.line {
     fill: none;
-    stroke: #666;
     stroke-width: 1.5px;
 }
-
-path.area {
-    fill: #e7e7e7;
-}
-
 .axis {
     shape-rendering: crispEdges;
 }
-
 .x.axis line {
     stroke: #fff;
 }
-
 .x.axis .minor {
     stroke-opacity: .5;
 }
-
 .x.axis path {
     display: none;
 }
-
 .y.axis line, .y.axis path {
     fill: none;
     stroke: #000;
@@ -39,4 +28,30 @@ path.area {
 }
 .title {
     margin: 2% 3%;
+}
+#legend {
+    width: 20%;
+    border-style: solid;
+    border-width: 1px;
+    margin-left: 65px;
+    padding: 0 0 1% 1%;
+}
+#legend p, label {
+    font-size: 12px;
+    margin-left: 14px;
+}
+.eur {
+    height: 10px;
+    width: 10px;
+    background-color: rgb(44, 160, 44);
+}
+.chf {
+    height: 10px;
+    width: 10px;
+    background-color: rgb(255, 127, 14);
+}
+.usd {
+    height: 10px;
+    width: 10px;
+    background-color: rgb(31, 119, 180);
 }

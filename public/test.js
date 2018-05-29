@@ -49,7 +49,6 @@ d3.csv('data.csv', type, (err, data) => {
     var numerator = 0;
     var denominator = 0;
     for(var i in data) {
-        // console.log(i);
         if(i <= 766) {
             data[i]['currency'] = 'USD';
             yavg += data[i]['average'];
@@ -73,7 +72,15 @@ d3.csv('data.csv', type, (err, data) => {
     // console.log(slope);
     var intercept = yavg - (slope * xavg);
     // console.log(intercept);
-    console.log(`line of best fit: y = ${slope}x + ${intercept}`)
+    var ulobf = `y = ${slope}x + ${intercept}`;
+    console.log(`line of best fit for USD: ${ulobf}`)
+
+    document.getElementById('ulobf').innerHTML = ulobf;
+
+
+
+
+
     
     var USD = data.filter((d) => {
         return d.currency == 'USD';
@@ -164,45 +171,11 @@ d3.csv('data.csv', type, (err, data) => {
                 .remove()
         });
 
-    var legend = svg.selectAll('.legend')
-        .data(colors.domain())
-        .enter()
-        .append('g')
-            .attr('class', 'legend')
-            .attr('transform', (d, i) => {
-                console.log(d);
-                var heightlegend = 18 + 4;
-                var offset = heightlegend * colors.domain().length / 2;
-                var horizontal = -2 * 18;
-                var vertical = i * heightlegend - offset;
-
-                return `translate(${horizontal}, ${vertical})`;
-            });
-
-    legend.append('rect')
-        .attr('width', 18)
-        .attr('height', 18)
-        .style('fill', colors)
-        .style('stroke', colors);
-
-    legend.append('text')
-        .attr('x', 18 + 4)
-        .attr('y', 18 - 4)
-        .text((d) => {
-            // console.log(d);
-            return 'crack'
-        });
-
     t.select('rect.curtain')
         .attr('width', 0);
     t.select('line.guide')
         .attr('transform', `translate(${width}, 0)`)
 });
-
-
-
-
-
 
 // parsing date for use in d3.csv above
 function type(d) {
@@ -211,3 +184,4 @@ function type(d) {
 
     return d;
 };
+

@@ -1,10 +1,28 @@
 <!DOCTYPE html>
 <head>
     <link rel='stylesheet' href='style.css'>
-</head>
-<body>
-    <h1 class='title'>d3js Display of a Few Bitcoin-to-Currency Over the Past Month</h1>
-    <svg></svg>
     <script src="https://d3js.org/d3.v3.js"></script>
     <script src='/test.js'></script>
+</head>
+<body>
+    <h1 class='title'>d3js Display of a Few Bitcoin-to-Currency from April 13th to May 14th</h1>
+    <svg></svg>
+    <div id='legend'>
+        <h3>Legend</h3>
+        <div class='eur'>
+            <label>EUR</label>
+        </div>
+        <p>Line of Best Fit:</p>
+        <p></p>
+        <div class='chf'>
+            <label>CHF</label>
+        </div>
+        <p>Line of Best Fit:</p>
+        <p></p>
+        <div class='usd'>
+            <label>USD</label>
+        </div>
+        <p>Line of Best Fit:</p>
+        <p id='ulobf'></p>
+    </div>
 </body>
