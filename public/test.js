@@ -227,3 +227,10 @@ function type(d) {
     return d;
 };
 
+
+
+// jquery stuff
+$(document).ready(() => {
+    $('#legend').delay(5500)
+    .fadeIn(1100)
+})
