@@ -44,43 +44,85 @@ var line = d3.svg.line()
 d3.csv('data.csv', type, (err, data) => {
     var xavg = 1;
     // x is time/date
-    var yavg = 0;
+    // x is reusable since time is static regardless of currency
+
     // y is price
-    var numerator = 0;
-    var denominator = 0;
+
+    // init vars
+    var yavgUSD = 0;
+    var yavgEUR = 0;
+    var yavgCHF = 0;
+
+    var numeratorUSD = 0;
+    var denominatorUSD = 0;
+    
+    var numeratorEUR = 0;
+    var denominatorEUR = 0;
+
+    var numeratorCHF = 0;
+    var denominatorCHF = 0;
+
+    // loop through data. setup and solve for y-intercept
     for(var i in data) {
         if(i <= 766) {
             data[i]['currency'] = 'USD';
-            yavg += data[i]['average'];
+            yavgUSD += data[i]['average'];
         }
         else if (i >= 767 && i <= 1533) {
             data[i]['currency'] = 'CHF';
+            yavgCHF += data[i]['average'];
         }
         else if (i >= 1534 && i <= 2300) {
             data[i]['currency'] = 'EUR';
+            yavgEUR += data[i]['average'];
         }
     }
-    yavg /= 766;
-    // console.log(yavg);
+    yavgUSD /= 767;
+    yavgCHF /= (1533 - 767 + 1);
+    yavgEUR /= (2300 - 1534 + 1);
+
+    // solving for line of best fit (lobf)
+    // lobf for USD
     for(var j = 0; j <= 766; j++) {
-        numerator += ((j+1-yavg) * (data[j]['average'] - yavg));
-        denominator += ((j+1-xavg) * j+1-xavg);
+        numeratorUSD += ((j + 1 - yavgUSD) * (data[j]['average'] - yavgUSD));
+        denominatorUSD += ((j + 1 - xavg) * (j + 1 - xavg));
     }
-    // console.log(numerator);
-    // console.log(denominator);
-    var slope = numerator / denominator;
-    // console.log(slope);
-    var intercept = yavg - (slope * xavg);
-    // console.log(intercept);
-    var ulobf = `y = ${slope}x + ${intercept}`;
-    console.log(`line of best fit for USD: ${ulobf}`)
+    var slopeUSD = numeratorUSD / denominatorUSD;
+    var interceptUSD = yavgUSD - (slopeUSD * xavg);
+    var lobfUSD = `y = ${slopeUSD}x + ${interceptUSD}`;
 
-    document.getElementById('ulobf').innerHTML = ulobf;
+    // console.log(`line of best fit for USD: ${lobfUSD}`)
+    document.getElementById('lobfUSD').innerHTML = lobfUSD;
 
+    // lobf for EUR
+    for(var k = 767; k <= 1533; k++) {
+        var count = k - 766;
+        
+        numeratorEUR += ((count - yavgEUR) * (data[k]['average'] - yavgEUR));
+        denominatorEUR += ((count - xavg) * (count - xavg));
+    }
+    var slopeEUR = numeratorEUR / denominatorEUR;
+    var interceptEUR = yavgEUR - (slopeEUR * xavg);
+    var lobfEUR = `y = ${slopeEUR}x + ${interceptEUR}`;
 
+    // console.log(`line of best fit for EUR: ${lobfEUR}`);
+    document.getElementById('lobfEUR').innerHTML = lobfEUR;
 
+    // lobf for CHF
+    for(var l = 1534; l <= 2300; l++) {
+        var count = l - 1533;
 
+        numeratorCHF += ((count - yavgCHF) * (data[l]['average'] - yavgCHF));
+        denominatorCHF += ((count - xavg) * (count - xavg));
+    }
+    var slopeCHF = numeratorCHF / denominatorCHF;
+    var interceptCHF = yavgCHF - (slopeCHF * xavg);
+    var lobfCHF = `y = ${slopeCHF}x + ${interceptCHF}`;
 
+    // console.log(`line of best fit for CHF: ${lobfCHF}`);
+    document.getElementById('lobfCHF').innerHTML = lobfCHF;
+
+    // end solving for lobf
     
     var USD = data.filter((d) => {
         return d.currency == 'USD';

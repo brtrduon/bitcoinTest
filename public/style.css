@@ -30,15 +30,26 @@ path.line {
     margin: 2% 3%;
 }
 #legend {
+    /* display: none; */
     width: 20%;
     border-style: solid;
     border-width: 1px;
     margin-left: 65px;
-    padding: 0 0 1% 1%;
+    padding: 0 1% 1% 1%;
+}
+#legend h3 {
+    font-size: 16px;
+}
+#legend h4 {
+    font-size: 12px;
+    font-weight: 400;
 }
 #legend p, label {
     font-size: 12px;
     margin-left: 14px;
+}
+#legend label {
+    font-weight: 600;
 }
 .eur {
     height: 10px;
